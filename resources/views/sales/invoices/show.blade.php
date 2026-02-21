@@ -14,15 +14,21 @@
         @if($invoice->status === 'DRAFT')
             <a href="{{ route('sales.invoices.edit', $invoice) }}" class="btn btn-warning btn-sm"><i class="fas fa-edit me-1"></i>Edit</a>
             <form action="{{ route('sales.invoices.post', $invoice) }}" method="POST" class="d-inline">
-                @csrf @method('PATCH')
+                @csrf
                 <button class="btn btn-success btn-sm" onclick="return confirm('Posting faktur ini?')"><i class="fas fa-check me-1"></i>Posting</button>
             </form>
         @elseif($invoice->status === 'POSTED')
             <a href="{{ route('finance.sales-payments.create', ['sales_invoice_id' => $invoice->id]) }}" class="btn btn-info btn-sm">
                 <i class="fas fa-money-bill me-1"></i>Catat Pembayaran
             </a>
+            <form action="{{ route('finance.xendit-payments.create', $invoice) }}" method="POST" class="d-inline">
+                @csrf
+                <button class="btn btn-accent btn-sm" onclick="return confirm('Buat invoice pembayaran Xendit?')">
+                    <i class="fas fa-credit-card me-1"></i>Bayar via Xendit
+                </button>
+            </form>
             <form action="{{ route('sales.invoices.void', $invoice) }}" method="POST" class="d-inline">
-                @csrf @method('PATCH')
+                @csrf
                 <button class="btn btn-danger btn-sm" onclick="return confirm('Void faktur ini?')"><i class="fas fa-ban me-1"></i>Void</button>
             </form>
         @endif

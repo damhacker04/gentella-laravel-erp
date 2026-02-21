@@ -5,19 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseOrder;
 use App\Models\SalesInvoice;
 use App\Models\SalesOrder;
+use App\Models\XenditPayment;
 
 class DashboardController extends Controller
 {
     public function __invoke()
     {
-        $soCount = SalesOrder::whereMonth('created_at', now()->month)->count();
-        $poCount = PurchaseOrder::whereMonth('created_at', now()->month)->count();
-        $revenue = SalesOrder::where('status', '!=', 'CANCELLED')->whereMonth('created_at', now()->month)->sum('total');
-        $unpaid = SalesInvoice::whereIn('status', ['DRAFT', 'POSTED'])->sum('total');
+        $month = now()->month;
+        $year = now()->year;
 
-        $recentSO = SalesOrder::with('customer')->latest()->take(5)->get();
-        $recentPO = PurchaseOrder::with('supplier')->latest()->take(5)->get();
+        $salesOrderCount = SalesOrder::whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+        $purchaseOrderCount = PurchaseOrder::whereMonth('created_at', $month)->whereYear('created_at', $year)->count();
+        $totalRevenue = XenditPayment::whereIn('status', ['PAID', 'SETTLED'])
+            ->whereMonth('created_at', $month)->whereYear('created_at', $year)
+            ->sum('amount');
+        $unpaidInvoices = SalesInvoice::whereIn('status', ['DRAFT', 'POSTED'])->count();
 
-        return view('dashboard', compact('soCount', 'poCount', 'revenue', 'unpaid', 'recentSO', 'recentPO'));
+        $recentSalesOrders = SalesOrder::with('customer')->latest()->take(5)->get();
+        $recentPurchaseOrders = PurchaseOrder::with('supplier')->latest()->take(5)->get();
+
+        return view('dashboard', compact('salesOrderCount', 'purchaseOrderCount', 'totalRevenue', 'unpaidInvoices', 'recentSalesOrders', 'recentPurchaseOrders'));
     }
 }

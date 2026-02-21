@@ -12,14 +12,16 @@ Route::prefix('sales')->name('sales.')->group(function () {
         ->name('orders.confirm');
     Route::post('orders/{order}/cancel', [\App\Http\Controllers\Sales\SalesOrderController::class , 'cancel'])
         ->name('orders.cancel');
+    Route::patch('orders/{order}/mark-as-paid', [\App\Http\Controllers\Sales\SalesOrderController::class , 'markAsPaid'])
+        ->name('orders.mark-as-paid');
 
     // Delivery Orders
     Route::resource('delivery-orders', \App\Http\Controllers\Sales\DeliveryOrderController::class);
 
     // Sales Invoices
     Route::resource('invoices', \App\Http\Controllers\Sales\SalesInvoiceController::class);
-    Route::post('invoices/{invoice}/post', [\App\Http\Controllers\Sales\SalesInvoiceController::class , 'post'])
+    Route::match (['post', 'patch'], 'invoices/{invoice}/post', [\App\Http\Controllers\Sales\SalesInvoiceController::class , 'post'])
         ->name('invoices.post');
-    Route::post('invoices/{invoice}/void', [\App\Http\Controllers\Sales\SalesInvoiceController::class , 'void'])
+    Route::match (['post', 'patch'], 'invoices/{invoice}/void', [\App\Http\Controllers\Sales\SalesInvoiceController::class , 'void'])
         ->name('invoices.void');
 });

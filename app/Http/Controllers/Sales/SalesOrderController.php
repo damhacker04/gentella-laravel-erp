@@ -10,10 +10,25 @@ use Illuminate\Http\Request;
 
 class SalesOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = SalesOrder::with('customer')->latest()->get();
-        return view('sales.orders.index', compact('orders'));
+        $query = SalesOrder::with('customer');
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('order_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('order_date', '<=', $request->date_to);
+        }
+
+        $salesOrders = $query->latest()->get();
+        return view('sales.orders.index', compact('salesOrders'));
     }
 
     public function create()
@@ -67,16 +82,18 @@ class SalesOrderController extends Controller
     public function show(SalesOrder $order)
     {
         $order->load(['customer', 'items.product', 'deliveryOrders', 'invoices', 'createdBy']);
-        return view('sales.orders.show', compact('order'));
+        $salesOrder = $order;
+        return view('sales.orders.show', compact('salesOrder'));
     }
 
     public function edit(SalesOrder $order)
     {
         abort_if($order->status !== 'DRAFT', 403, 'Hanya SO DRAFT yang bisa diedit.');
         $order->load('items');
+        $salesOrder = $order;
         $customers = Customer::where('is_active', true)->orderBy('name')->get();
         $products = Product::where('is_active', true)->orderBy('name')->get();
-        return view('sales.orders.edit', compact('order', 'customers', 'products'));
+        return view('sales.orders.edit', compact('salesOrder', 'customers', 'products'));
     }
 
     public function update(Request $request, SalesOrder $order)
@@ -131,5 +148,12 @@ class SalesOrderController extends Controller
         abort_if(!in_array($order->status, ['DRAFT', 'CONFIRMED']), 403);
         $order->update(['status' => 'CANCELLED']);
         return redirect()->route('sales.orders.show', $order)->with('success', 'Sales Order dibatalkan.');
+    }
+
+    public function markAsPaid(SalesOrder $order)
+    {
+        abort_if($order->status !== 'CONFIRMED', 403, 'Hanya SO CONFIRMED yang bisa ditandai Paid.');
+        $order->update(['status' => 'PAID']);
+        return redirect()->route('sales.orders.show', $order)->with('success', 'Sales Order ditandai sebagai Lunas (Paid).');
     }
 }

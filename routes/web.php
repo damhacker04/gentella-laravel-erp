@@ -30,4 +30,8 @@ Route::middleware(['auth'])->group(function () {
     require __DIR__ . '/settings.php';
 });
 
+// Xendit Webhook (no auth — called by Xendit servers)
+Route::post('/webhooks/xendit', [\App\Http\Controllers\Finance\XenditPaymentController::class , 'webhook'])
+    ->name('webhooks.xendit');
+
 require __DIR__ . '/auth.php';

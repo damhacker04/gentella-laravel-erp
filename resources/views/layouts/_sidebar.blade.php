@@ -137,6 +137,9 @@
                     <a href="{{ route('finance.purchase-payments.index') }}">Pembayaran Pembelian</a>
                 </li>
                 @endcan
+                <li class="{{ request()->routeIs('finance.xendit-payments.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.xendit-payments.index') }}"><i class="fas fa-credit-card me-1"></i>Pembayaran Xendit</a>
+                </li>
             </ul>
         </li>
         @endcanany

@@ -124,6 +124,16 @@
                 @endif
 
                 @if($salesOrder->status === 'CONFIRMED')
+                    @can('sales.orders.create')
+                    <form action="{{ route('sales.orders.mark-as-paid', $salesOrder) }}" method="POST">
+                        @csrf @method('PATCH')
+                        <button type="button" class="btn btn-success w-100 btn-status-change"
+                                data-action="menandai order ini sebagai Paid">
+                            <i class="fas fa-check-double me-1"></i> Mark as Paid
+                        </button>
+                    </form>
+                    @endcan
+
                     @can('sales.delivery_orders.create')
                     <a href="{{ route('sales.delivery-orders.create', ['sales_order_id' => $salesOrder->id]) }}"
                        class="btn btn-info">
@@ -133,9 +143,19 @@
 
                     @can('sales.invoices.create')
                     <a href="{{ route('sales.invoices.create', ['sales_order_id' => $salesOrder->id]) }}"
-                       class="btn btn-success">
+                       class="btn btn-primary">
                         <i class="fas fa-file-invoice me-1"></i> Buat Faktur
                     </a>
+                    @endcan
+
+                    @can('sales.orders.cancel')
+                    <form action="{{ route('sales.orders.cancel', $salesOrder) }}" method="POST">
+                        @csrf
+                        <button type="button" class="btn btn-danger w-100 btn-status-change"
+                                data-action="membatalkan order ini">
+                            <i class="fas fa-times me-1"></i> Batalkan
+                        </button>
+                    </form>
                     @endcan
                 @endif
 

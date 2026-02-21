@@ -236,7 +236,7 @@ window.DynamicItems = {
         let grandTotal = 0;
         this.table.querySelectorAll('.item-row').forEach(function (row) {
             const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
-            const price = parseFloat(row.querySelector('.item-price')?.value.replace(/[^0-9]/g, '')) || 0;
+            const price = parseFloat(row.querySelector('.item-price')?.value.replace(/[^0-9.]/g, '')) || 0;
             const subtotal = qty * price;
             const subtotalEl = row.querySelector('.item-subtotal');
             if (subtotalEl) {
